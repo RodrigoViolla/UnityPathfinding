@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Quadrado{
 
-	private int x,y,f,h,g;
+	private int x,y,f,h,g,seq;
 	private bool caminhavel, descoberto, inicio, destino, caminho;
 	private Quadrado pai;
 
@@ -113,6 +113,15 @@ public class Quadrado{
 		}
 		set {
 			caminho = value;
+		}
+	}
+
+	public int Seq {
+		get {
+			return this.seq;
+		}
+		set {
+			seq = value;
 		}
 	}
 }

@@ -25,14 +25,25 @@ public class Grade : MonoBehaviour {
 		}
 		#endregion
 
+		grade [4, 9].Caminhavel = false;
+		grade [4, 8].Caminhavel = false;
 		grade [4, 7].Caminhavel = false;
 		grade [4, 6].Caminhavel = false;
 		grade [4, 5].Caminhavel = false;
 		grade [4, 4].Caminhavel = false;
 		grade [4, 3].Caminhavel = false;
-		grade [4, 2].Caminhavel = false;
+		grade [4, 2].Caminhavel = true;
 		grade [4, 1].Caminhavel = false;
 		grade [4, 0].Caminhavel = false;
+
+		grade [5, 4].Caminhavel = false;
+		grade [5, 5].Caminhavel = false;
+		grade [6, 5].Caminhavel = false;
+		grade [6, 4].Caminhavel = false;
+		grade [6, 3].Caminhavel = false;
+		grade [6, 2].Caminhavel = false;
+		grade [7, 5].Caminhavel = false;
+		grade [8, 5].Caminhavel = false;
 
 		grade [2, 6].Inicio = true;
 
@@ -57,9 +68,9 @@ public class Grade : MonoBehaviour {
 					textGO.transform.position = Vector3.zero;
 
 					TextMesh text = textGO.AddComponent<TextMesh>();
-					text.text = "F="+grade[i,j].F+"\nG="+grade[i,j].G+"\nH="+grade[i,j].H;
+					text.text = "F="+grade[i,j].F+"\nG="+grade[i,j].G+"\nH="+grade[i,j].H+"\nSeq="+grade[i,j].Seq;
 					text.anchor = TextAnchor.MiddleCenter;
-					textGO.transform.localScale = new Vector3(0.1427915f, 0.1427915f, 0.1427915f);
+					textGO.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
 				}
 
 				if(grade[i,j].Descoberto)
@@ -131,18 +142,20 @@ public class Grade : MonoBehaviour {
 		Quadrado quadradoAtual = inicio;
 		int cont = 0;
 
-		while (quadradoAtual != destino && cont < 300) {
+		while (quadradoAtual != destino && cont < 5000) {
 			if (!listaFechada.Contains (quadradoAtual)) {
 				listaFechada.Add (quadradoAtual);
+				quadradoAtual.Seq = cont;
 				if (listaAberta.Contains (quadradoAtual))
 					listaAberta.Remove (quadradoAtual);
 			}
 			
 			quadradoAtual = VerificarPerimetro (quadradoAtual, destino);
 
+			print (quadradoAtual.X+" , "+quadradoAtual.Y);
 			cont++;
 		}
-
+		print (cont);
 		return true;
 	}
 
@@ -152,28 +165,33 @@ public class Grade : MonoBehaviour {
 		x = quadradoAtual.X - 1;
 		y = quadradoAtual.Y - 1;
 
-		Quadrado menorCusto = new Quadrado(-100, -100, false);
-
-		menorCusto.F = 10000000;
+		Quadrado menorCusto = null;
 
 		for(int i=0; i<3; i++){
 			for (int j=0; j<3; j++) {
 				if (i + x < w && j + y < h && j+y >= 0 && i + x >= 0) {
-					if (grade [i + x, j + y].Caminhavel && !grade [i + x, j + y].Descoberto && !grade [i + x, j + y].Inicio && !(i + x == 1 && j + y == 1) && !listaFechada.Contains (grade [i + x, j + y])) {
+					
+					if (grade [i + x, j + y].Caminhavel && !(i + x == 1 && j + y == 1) && !listaFechada.Contains (grade [i + x, j + y])) {
 
 						if (!listaAberta.Contains (grade [i + x, j + y])) {
 							listaAberta.Add (grade [i + x, j + y]);
 							grade [i + x, j + y].Pai = quadradoAtual;
+
+							grade [i + x, j + y].H = DistanciaManhattan (grade [i + x, j + y], quadradoDestino);
+							grade [i + x, j + y].G = CalculaCusto (i, j);
+							grade [i + x, j + y].F = grade [i + x, j + y].G + grade [i + x, j + y].H;
+						} else {
+							if (CalculaCusto (i, j) < grade [i + x, j + y].G) {
+								grade [i + x, j + y].Pai = quadradoAtual;
+
+								grade [i + x, j + y].H = DistanciaManhattan (grade [i + x, j + y], quadradoDestino);
+								grade [i + x, j + y].G = CalculaCusto (i, j);
+								grade [i + x, j + y].F = grade [i + x, j + y].G + grade [i + x, j + y].H;
+							}
 						}
 
-						grade [i + x, j + y].H = DistanciaManhattan (grade [i + x, j + y], quadradoDestino);
-
-						if (i == j || (i == 0 && j == 2) || (i == 2 && j == 0))
-							grade [i + x, j + y].G = 14;
-						else
-							grade [i + x, j + y].G = 10;
-
-						grade [i + x, j + y].F = grade [i + x, j + y].G + grade [i + x, j + y].H;
+						if (menorCusto == null)
+							menorCusto = grade [i + x, j + y];
 
 						if (grade [i + x, j + y].F < menorCusto.F)
 							menorCusto = grade [i + x, j + y];
@@ -182,6 +200,13 @@ public class Grade : MonoBehaviour {
 			}
 		}
 
-		return menorCusto;
+		return (menorCusto == null) ? quadradoAtual : menorCusto;
+	}
+
+	public int CalculaCusto(int i, int j){
+		if (i == j || (i == 0 && j == 2) || (i == 2 && j == 0))
+			return 14;
+		else
+			return 10;	
 	}
 }
