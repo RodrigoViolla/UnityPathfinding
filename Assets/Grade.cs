@@ -36,7 +36,7 @@ public class Grade : MonoBehaviour {
 		grade [4, 1].Caminhavel = false;
 		grade [4, 0].Caminhavel = false;
 
-		grade [5, 4].Caminhavel = false;
+		//grade [5, 4].Caminhavel = false;
 		grade [5, 5].Caminhavel = false;
 		grade [6, 5].Caminhavel = false;
 		grade [6, 4].Caminhavel = false;
@@ -69,8 +69,9 @@ public class Grade : MonoBehaviour {
 
 					TextMesh text = textGO.AddComponent<TextMesh>();
 					text.text = "F="+grade[i,j].F+"\nG="+grade[i,j].G+"\nH="+grade[i,j].H+"\nSeq="+grade[i,j].Seq;
+					text.color = Color.black;
 					text.anchor = TextAnchor.MiddleCenter;
-					textGO.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+					textGO.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
 				}
 
 				if(grade[i,j].Descoberto)
@@ -95,6 +96,8 @@ public class Grade : MonoBehaviour {
 		}
 		#endregion
 
+
+		#region Colorindo o caminho
 		Quadrado atual = grade [6, 6];
 		while (atual != grade [2, 6]) {
 			atual = atual.Pai;
@@ -107,6 +110,7 @@ public class Grade : MonoBehaviour {
 					renderers [i, j].material.color = Color.yellow;
 			}
 		}
+		#endregion
 
 	}
 
@@ -151,11 +155,9 @@ public class Grade : MonoBehaviour {
 			}
 			
 			quadradoAtual = VerificarPerimetro (quadradoAtual, destino);
-
-			print (quadradoAtual.X+" , "+quadradoAtual.Y);
 			cont++;
 		}
-		print (cont);
+
 		return true;
 	}
 
@@ -200,7 +202,13 @@ public class Grade : MonoBehaviour {
 			}
 		}
 
-		return (menorCusto == null) ? quadradoAtual : menorCusto;
+		if (menorCusto == null) {
+			quadradoAtual.G += 10;
+			quadradoAtual.F = quadradoAtual.G + quadradoAtual.H;
+			return quadradoAtual.Pai;
+		}
+
+		return menorCusto;
 	}
 
 	public int CalculaCusto(int i, int j){
